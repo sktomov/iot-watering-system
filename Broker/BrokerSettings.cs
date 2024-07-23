@@ -18,8 +18,4 @@ public class BrokerSettings
     public string ClientCertificateKeyFilePath { get; set; }
 
     public string ClientCertificateFilePath { get; set; }
-
-    public string ClientCertificateFilePassword { get; set; }
-
-    public string CertificateAuthorityFilePath { get; set; }
 }
