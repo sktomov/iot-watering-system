@@ -1,16 +1,21 @@
 ﻿using System.Reflection;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using MediatR;
 using Swashbuckle.AspNetCore.Annotations;
 using WateringSystem;
+using WateringSystem.Broker;
 using WateringSystem.Commands;
+using WateringSystem.Data;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Configuration.AddEnvironmentVariables();
 
-builder.Services.AddMqttReceiver<StatusReceiver>("test/status", Guid.NewGuid().ToString());
+builder.Services.AddMqttReceiver<StatusReceiver>(Topics.Status, Guid.NewGuid().ToString());
 builder.Services.Configure<BrokerSettings>(
     builder.Configuration.GetSection(BrokerSettings.SectionName));
 builder.Services.AddMediatR(configuration => configuration.RegisterServicesFromAssemblies(Assembly.GetExecutingAssembly()));
-
+builder.Services.AddScoped<IStatusRepository, StatusRepository>();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(x =>
 {
@@ -18,6 +23,14 @@ builder.Services.AddSwaggerGen(x =>
 });
 
 builder.Services.AddHttpContextAccessor();
+
+builder.Services.ConfigureHttpJsonOptions(options => {
+    options.SerializerOptions.PropertyNameCaseInsensitive = true;
+    options.SerializerOptions.WriteIndented = true;
+    options.SerializerOptions.AllowTrailingCommas = true;
+    options.SerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
+    options.SerializerOptions.ReferenceHandler =ReferenceHandler.IgnoreCycles;
+});
 
 var app = builder.Build();
 
