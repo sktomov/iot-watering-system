@@ -8,6 +8,7 @@ FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
 COPY ["iot-watering-system.csproj", "./"]
+ENV DOTNET_NUGET_SIGNATURE_VERIFICATION=false
 RUN dotnet restore "iot-watering-system.csproj"
 COPY . .
 WORKDIR "/src/"
