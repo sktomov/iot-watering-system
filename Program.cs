@@ -6,8 +6,10 @@ using Swashbuckle.AspNetCore.Annotations;
 using WateringSystem;
 using WateringSystem.Broker;
 using WateringSystem.Commands;
+using WateringSystem.Commands.Status;
 using WateringSystem.Data;
 
+var  MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 var builder = WebApplication.CreateBuilder(args);
 builder.Configuration.AddEnvironmentVariables();
 
@@ -23,6 +25,19 @@ builder.Services.AddSwaggerGen(x =>
 });
 
 builder.Services.AddHttpContextAccessor();
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(name: MyAllowSpecificOrigins,
+        policy  =>
+        {
+            policy.AllowAnyHeader();
+            policy.AllowAnyOrigin();
+            policy.WithOrigins("http://localhost:3000",
+                "https://www.le6o.net");
+            policy.AllowAnyMethod();
+        });
+});
 
 builder.Services.ConfigureHttpJsonOptions(options => {
     options.SerializerOptions.PropertyNameCaseInsensitive = true;
@@ -42,11 +57,7 @@ app.UseSwaggerUI(options =>
     options.RoutePrefix = string.Empty;
 });
 
-app.MapPost("/api/send-to-topic", async (TestCommand request, IMediator mediator) =>
-    {
-        var result = await mediator.Send(request);
-        return Results.Ok(result);
-    })
-    .WithMetadata(new SwaggerOperationAttribute("summary", "Send message to topic"));;
+app.ConfigureMinimalApis();
 
+app.UseCors(MyAllowSpecificOrigins);
 app.Run();

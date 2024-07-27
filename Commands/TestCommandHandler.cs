@@ -7,7 +7,7 @@ public class TestCommandHandler(IMqttSender mqttSender) : IRequestHandler<TestCo
 {
     public async Task<Unit> Handle(TestCommand request, CancellationToken cancellationToken)
     {
-        await mqttSender.Send(request.Topic, request.SomeText, cancellationToken);
+        await mqttSender.SendAsync(request.Topic, request.SomeText, cancellationToken);
         return Unit.Value;
     }
 }

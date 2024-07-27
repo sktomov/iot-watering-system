@@ -1,3 +1,4 @@
+using System.Text.Json;
 using Microsoft.Extensions.Options;
 using MQTTnet;
 using MQTTnet.Client;
@@ -20,8 +21,21 @@ public class MqttSender : IMqttSender
         _clientOptions = MqttClientHelper.GetClientOptions(brokerOptions.Value, Guid.NewGuid().ToString());
 
     }
-    
-    public async Task Send(string topic, string message, CancellationToken cancellationToken)
+
+    public async Task SendAsync(string topic, string message, CancellationToken cancellationToken)
+        => await SendInternalAsync(topic, message, cancellationToken);
+
+    public async Task SendJsonAsync(string topic, object message, CancellationToken cancellationToken)
+    {
+        var messageTosend = JsonSerializer.Serialize(message, new JsonSerializerOptions
+        {
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+        });
+
+        await SendInternalAsync(topic, messageTosend, cancellationToken);
+    }
+
+    private async Task SendInternalAsync(string topic, string message, CancellationToken cancellationToken)
     {
         if (!_client.IsConnected)
             await Connect(cancellationToken);
@@ -31,7 +45,7 @@ public class MqttSender : IMqttSender
             .WithPayload(message)
             .Build();
     
-        await _client.PublishAsync(applicationMessage, CancellationToken.None);
+        await _client.PublishAsync(applicationMessage, cancellationToken);
         _logger.LogInformation("### SEND APPLICATION MESSAGE TO TOPIC {topic} ###\n{payload}", topic, message);
     }
 
