@@ -2,6 +2,7 @@ using System.Text.Json;
 using Microsoft.Extensions.Options;
 using MQTTnet;
 using MQTTnet.Client;
+using MQTTnet.Protocol;
 using WateringSystem.Broker.Interfaces;
 
 namespace WateringSystem.Broker;
@@ -43,6 +44,7 @@ public class MqttSender : IMqttSender
         var applicationMessage = new MqttApplicationMessageBuilder()
             .WithTopic(topic)
             .WithPayload(message)
+            .WithQualityOfServiceLevel(MqttQualityOfServiceLevel.AtLeastOnce)
             .Build();
     
         await _client.PublishAsync(applicationMessage, cancellationToken);

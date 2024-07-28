@@ -20,7 +20,11 @@ public class StatusHandler(IStatusRepository statusRepository) : IRequestHandler
             Tomatoes = lastStatus.Tomatoes,
             StrawberriesHours = lastStatus.StrawberriesHours,
             PumpingHours = lastStatus.PumpingHours,
-            TomatoesHours = lastStatus.TomatoesHours
+            TomatoesHours = lastStatus.TomatoesHours,
+            IrrigationOn = lastStatus.IrrigationOn,
+            IrrigationTomatoes = lastStatus.IrrigationTomatoes,
+            IrrigationStrawberries = lastStatus.IrrigationStrawberries,
+            PumpOn = lastStatus.PumpOn
         };
         
         // TODO: Pass last date + time of watering
